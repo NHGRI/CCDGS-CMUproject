@@ -1,0 +1,13 @@
+# basic commands needed to use git via terminal taken from online forums 
+
+# installing git 
+sudo apt-get update 
+sudo apt-get install git 
+
+# store username and password 
+git config credentials.helper store 
+git push /repository/path      e.g. https://github.com/nhanchard/HanchardLab 
+it will prompt to type username and password 
+
+
+
