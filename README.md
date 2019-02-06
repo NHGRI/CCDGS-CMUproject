@@ -1,1 +1,14 @@
-# HanchardLab
+## Synopsis
+Hanchard laboratory is based in Children's Nutrition Research Center (CNRC), one of six U.S. Department of Agriculture (USDA) human nutrition research centers conducting research to help define guidelines for maternal, infant and childhood nutrition. The CNRC is operated by Baylor College of Medicine in cooperation with Texas Children's Hospital and Agricultural Research Service of the USDA.
+
+Developing computational algorithms and/or tools for reproducing the results has become a part of many research programs. This Git space allows our lab members to collaborate and develop these tools. We use genomics to better understand complex pediatric disease traits. Specific areas of our interest include:
+
+1. **`Severe childhood malnutrition (SCM)`**: SCM, a major global health problem contributing to more than two million childhood deaths worldwide each year, occurs primarily in two clinically distinct forms - the more lethal edematous SCM (ESCM) and the milder non-edematous SCM (NESCM). Despite years of study, the reasons why some children get ESCM while others get NESCM remain unclear. Both groups have similar environmental and dietary exposures suggesting that ESCM may partly result from innate genetic differences in response to nutritional stress. In collaboration with researchers in Malawi and Jamaica, we are undertaking integrative analyses using genome-wide SNP genotyping, metabolomics and DNA methylation profiles in children with ESCM and NESCM to identify genes and gene-pathways that contribute to the clinical dichotomy of SCM.
+
+2. **`HIV and Tuberculosis (TB)`**: HIV’s most common comorbidity is TB. Each year half a million children are infected with HIV in sub-Saharan Africa, and ~50% of them have concomitant TB. Within these groups, however, there is a wide variability in the rate and extent of disease progression. As part of the Collaborative African Genomics Network *CAfGEN* we are using next-generation sequencing (NGS) and integrated genomics to better understand the host factors that modulate the progression of HIV and HIV-TB infection in children from sub-Saharan Africa.
+
+3. **`Sickle cell disease (SCD)`**: Individuals with SCD are often exposed to repeated blood transfusions and a significant number of them subsequently develop multiple ‘alloantibodies’. The biology of this “responder” phenomenon is largely unknown. We are using genome-wide genotyping, DNA methylation and estimates of population ancestry to study the development of alloimmunity in individuals with SCD. As part of an African SCD Network *AfroSickleNet*, we are using NGS to fine-map genetic associations of fetal hemoglobin production in sub-Saharan Africa - where the disease is most prevalent.
+
+## Download
+The instructions for downloading a repository are in the README section for the specific repository. We request that anyone using our code for analyses or to further develop their own algorithm based on ours, to please cite our work. Citation information for each repository can be found on its’ README section.
+
