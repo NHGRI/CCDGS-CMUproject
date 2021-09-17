@@ -1,0 +1,30 @@
+##After Installing perl locally
+
+curl -sL https://cpanmin.us | $PERL_BASE/perl-5.30.2/bin/perl - --notest -l $PERL_BASE/perl-5.30.2 GD GD::Image GD::Polyline Math::Bezier Math::Round Math::VecStat Readonly Regexp::Common Set::IntSpan Text::Format version
+
+###because GD module depends libgd, libgd is an open source code library for the dynamic creation of images by programmers. you mush install it first.
+wget https://github.com/libgd/libgd/releases/download/gd-2.2.5/libgd-2.2.5.tar.gz
+tar zxvf libgd-2.2.5.tar.gz
+cd libgd-2.2.5
+./configure 
+make
+make install
+make installcheck
+
+##if you are not root, or you just want install for yourself, you need install add -prefix=
+./configure -prefix=/mnt/hanchardlab/savannah/bin
+make
+make install
+make installcheck
+export PKG_CONFIG_PATH=/mnt/hanchardlab/savannah/bin/lib/pkgconfig
+
+curl -sL https://cpanmin.us | $PERL_BASE/perl-5.30.2/bin/perl - --notest -l $PERL_BASE/perl-5.30.2 GD::Polyline GD GD::Image GD::Polyline
+
+curl -sL https://cpanmin.us | $PERL_BASE/perl-5.30.2/bin/perl - --notest -l $PERL_BASE/perl-5.30.2 local::lib
+use local::lib '/mnt/hanchardlab/savannah/Software/perl/perl-5.30.2/lib/5.30.2'
+
+curl -sL https://cpanmin.us | $PERL_BASE/perl-5.30.2/bin/perl - --notest -l $PERL_BASE/perl-5.30.2 GD::Graph::boxplot GD::Graph::lines GD::Text::Wrap Math::SpecFun::Beta Mitoanno Statistics::KernelEstimation Statistics::Multtest Text::NSP::Measures::2D::Fisher::left
+##For Math::SpecFun::Beta copy from MitoSeek directory to perl library
+Cp -r /MitoSeek/MitoSeek-1.3/Math/* ./mnt/hanchardlab/savannah/Software/perl/perl-5.30.2/lib/5.30.2
+##For Mitoanno aslo copy to perl library
+cp /mnt/hanchardlab/savannah/Software/MitoSeek/MitoSeek-1.3/Mitoanno.pm /mnt/hanchardlab/savannah/Software/perl/perl-5.30.2/lib/5.30.2/

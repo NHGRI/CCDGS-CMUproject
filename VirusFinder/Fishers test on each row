@@ -1,0 +1,20 @@
+## from https://gist.github.com/4d75564e5f44702ee3bc.git
+#!/usr/bin/env Rscript
+
+# fisher test on each row
+row_fisher <- function(row, alt = 'two.sided', cnf = 0.95) {
+  f <- fisher.test(matrix(row, nrow = 2), alternative = alt, conf.level = cnf)
+  return(c(row,
+           p_val = f$p.value,
+           or = f$estimate[[1]],
+           or_ll = f$conf.int[1],
+           or_ul = f$conf.int[2]))
+}
+
+# generate sample data for test
+test_df <- data.frame(matrix(sample.int(1000, size = 4000, replace = TRUE), ncol = 4))
+colnames(test_df) <- c('a', 'b', 'c', 'd')
+
+# run
+p <- data.frame(t(apply(test_df, 1, row_fisher)))
+print(p)
