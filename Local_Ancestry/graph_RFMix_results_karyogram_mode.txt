@@ -1,0 +1,124 @@
+# visualizing_rfmix_try2jam 
+# R on computer 
+setwd("Y:/HGTJAM_GSproject/HGTJAM_GSproject2/tractor_try2/") 
+
+
+
+### JAMAICA 
+
+for(i in 1:22){
+read.table(paste("trying_rfmix_chr",i,"_try2.msp.tsv",sep=""), comment.char='', fill=TRUE) -> chrr
+assign(paste("chr",i,sep=""),chrr)
+chrr[-1,grep("^J", chrr[2,])] -> chrjam 
+chrjam[,seq(from=1, to=dim(chrjam)[2], by=2)] -> chrjamhap1
+names(chrjamhap1) <- chrjamhap1[1,]
+chrjamhap1[-1,] -> chrjamhap1
+chrjamhap1 <- as.data.frame(sapply(chrjamhap1, as.numeric))
+chrjam[,seq(from=2, to=dim(chrjam)[2], by=2)] -> chrjamhap2
+names(chrjamhap2) <- chrjamhap2[1,]
+chrjamhap2[-1,] -> chrjamhap2
+chrjamhap2 <- as.data.frame(sapply(chrjamhap2, as.numeric))
+cbind(chrjamhap1, "mode"=apply(chrjamhap1, 1, function(x) names(which.max(table(x))))) -> cjamh1m
+cjamh1m$forbarplot <- 1
+cbind(chrjamhap2, "mode"=apply(chrjamhap2, 1, function(x) names(which.max(table(x))))) -> cjamh2m
+cjamh2m$forbarplot <- 1
+assign(paste("c",i,"jamh1m",sep=""), cjamh1m)
+assign(paste("c",i,"jamh2m",sep=""), cjamh2m)
+}
+
+# barplot! 
+# keep in mind jola=0, yri=1, zulu=2
+layout(mat=matrix(c(1:44), nrow=44,  ncol=1))
+
+# when doing "mar=" the order of the four numbers are bottom, left, top, right
+par(mar=c(0.05,0,0.1,0))
+barplot(c1jamh1m$forbarplot, ylim=c(0,1), border=NA, space=0, xlim=c(0,120), xaxt='n', yaxt='n', col=ifelse(c1jamh1m$mode==0, "blue", ifelse(c1jamh1m$mode==1, "yellow", "hotpink")))
+par(mar=c(0.1,0,0.05,0))
+barplot(c1jamh2m$forbarplot, ylim=c(0,1), border=NA, space=0, xlim=c(0,120), xaxt='n', yaxt='n', col=ifelse(c1jamh2m$mode==0, "blue", ifelse(c1jamh2m$mode==1, "yellow", "hotpink")))
+par(mar=c(0.05,0,0.1,0))
+barplot(c2jamh1m$forbarplot, ylim=c(0,1), border=NA, space=0, xlim=c(0,120), xaxt='n', yaxt='n', col=ifelse(c2jamh1m$mode==0, "blue", ifelse(c2jamh1m$mode==1, "yellow", "hotpink")))
+par(mar=c(0.1,0,0.05,0))
+barplot(c2jamh2m$forbarplot, ylim=c(0,1), border=NA, space=0, xlim=c(0,120), xaxt='n', yaxt='n', col=ifelse(c2jamh2m$mode==0, "blue", ifelse(c2jamh2m$mode==1, "yellow", "hotpink")))
+par(mar=c(0.05,0,0.1,0))
+barplot(c3jamh1m$forbarplot, ylim=c(0,1), border=NA, space=0, xlim=c(0,120), xaxt='n', yaxt='n', col=ifelse(c3jamh1m$mode==0, "blue", ifelse(c3jamh1m$mode==1, "yellow", "hotpink")))
+par(mar=c(0.1,0,0.05,0))
+barplot(c3jamh2m$forbarplot, ylim=c(0,1), border=NA, space=0, xlim=c(0,120), xaxt='n', yaxt='n', col=ifelse(c3jamh2m$mode==0, "blue", ifelse(c3jamh2m$mode==1, "yellow", "hotpink")))
+par(mar=c(0.05,0,0.1,0))
+barplot(c4jamh1m$forbarplot, ylim=c(0,1), border=NA, space=0, xlim=c(0,120), xaxt='n', yaxt='n', col=ifelse(c4jamh1m$mode==0, "blue", ifelse(c4jamh1m$mode==1, "yellow", "hotpink")))
+par(mar=c(0.1,0,0.05,0))
+barplot(c4jamh2m$forbarplot, ylim=c(0,1), border=NA, space=0, xlim=c(0,120), xaxt='n', yaxt='n', col=ifelse(c4jamh2m$mode==0, "blue", ifelse(c4jamh2m$mode==1, "yellow", "hotpink")))
+par(mar=c(0.05,0,0.1,0))
+barplot(c5jamh1m$forbarplot, ylim=c(0,1), border=NA, space=0, xlim=c(0,120), xaxt='n', yaxt='n', col=ifelse(c5jamh1m$mode==0, "blue", ifelse(c5jamh1m$mode==1, "yellow", "hotpink")))
+par(mar=c(0.1,0,0.05,0))
+barplot(c5jamh2m$forbarplot, ylim=c(0,1), border=NA, space=0, xlim=c(0,120), xaxt='n', yaxt='n', col=ifelse(c5jamh2m$mode==0, "blue", ifelse(c5jamh2m$mode==1, "yellow", "hotpink")))
+par(mar=c(0.05,0,0.1,0))
+barplot(c6jamh1m$forbarplot, ylim=c(0,1), border=NA, space=0, xlim=c(0,120), xaxt='n', yaxt='n', col=ifelse(c6jamh1m$mode==0, "blue", ifelse(c6jamh1m$mode==1, "yellow", "hotpink")))
+par(mar=c(0.1,0,0.05,0))
+barplot(c6jamh2m$forbarplot, ylim=c(0,1), border=NA, space=0, xlim=c(0,120), xaxt='n', yaxt='n', col=ifelse(c6jamh2m$mode==0, "blue", ifelse(c6jamh2m$mode==1, "yellow", "hotpink")))
+par(mar=c(0.05,0,0.1,0))
+barplot(c7jamh1m$forbarplot, ylim=c(0,1), border=NA, space=0, xlim=c(0,120), xaxt='n', yaxt='n', col=ifelse(c7jamh1m$mode==0, "blue", ifelse(c7jamh1m$mode==1, "yellow", "hotpink")))
+par(mar=c(0.1,0,0.05,0))
+barplot(c7jamh2m$forbarplot, ylim=c(0,1), border=NA, space=0, xlim=c(0,120), xaxt='n', yaxt='n', col=ifelse(c7jamh2m$mode==0, "blue", ifelse(c7jamh2m$mode==1, "yellow", "hotpink")))
+par(mar=c(0.05,0,0.1,0))
+barplot(c8jamh1m$forbarplot, ylim=c(0,1), border=NA, space=0, xlim=c(0,120), xaxt='n', yaxt='n', col=ifelse(c8jamh1m$mode==0, "blue", ifelse(c8jamh1m$mode==1, "yellow", "hotpink")))
+par(mar=c(0.1,0,0.05,0))
+barplot(c8jamh2m$forbarplot, ylim=c(0,1), border=NA, space=0, xlim=c(0,120), xaxt='n', yaxt='n', col=ifelse(c8jamh2m$mode==0, "blue", ifelse(c8jamh2m$mode==1, "yellow", "hotpink")))
+par(mar=c(0.05,0,0.1,0))
+barplot(c9jamh1m$forbarplot, ylim=c(0,1), border=NA, space=0, xlim=c(0,120), xaxt='n', yaxt='n', col=ifelse(c9jamh1m$mode==0, "blue", ifelse(c9jamh1m$mode==1, "yellow", "hotpink")))
+par(mar=c(0.1,0,0.05,0))
+barplot(c9jamh2m$forbarplot, ylim=c(0,1), border=NA, space=0, xlim=c(0,120), xaxt='n', yaxt='n', col=ifelse(c9jamh2m$mode==0, "blue", ifelse(c9jamh2m$mode==1, "yellow", "hotpink")))
+par(mar=c(0.05,0,0.1,0))
+barplot(c10jamh1m$forbarplot, ylim=c(0,1), border=NA, space=0, xlim=c(0,120), xaxt='n', yaxt='n', col=ifelse(c10jamh1m$mode==0, "blue", ifelse(c10jamh1m$mode==1, "yellow", "hotpink")))
+par(mar=c(0.1,0,0.05,0))
+barplot(c10jamh2m$forbarplot, ylim=c(0,1), border=NA, space=0, xlim=c(0,120), xaxt='n', yaxt='n', col=ifelse(c10jamh2m$mode==0, "blue", ifelse(c10jamh2m$mode==1, "yellow", "hotpink")))
+par(mar=c(0.05,0,0.1,0))
+barplot(c11jamh1m$forbarplot, ylim=c(0,1), border=NA, space=0, xlim=c(0,120), xaxt='n', yaxt='n', col=ifelse(c11jamh1m$mode==0, "blue", ifelse(c11jamh1m$mode==1, "yellow", "hotpink")))
+par(mar=c(0.1,0,0.05,0))
+barplot(c11jamh2m$forbarplot, ylim=c(0,1), border=NA, space=0, xlim=c(0,120), xaxt='n', yaxt='n', col=ifelse(c11jamh2m$mode==0, "blue", ifelse(c11jamh2m$mode==1, "yellow", "hotpink")))
+par(mar=c(0.05,0,0.1,0))
+barplot(c12jamh1m$forbarplot, ylim=c(0,1), border=NA, space=0, xlim=c(0,120), xaxt='n', yaxt='n', col=ifelse(c12jamh1m$mode==0, "blue", ifelse(c12jamh1m$mode==1, "yellow", "hotpink")))
+par(mar=c(0.1,0,0.05,0))
+barplot(c12jamh2m$forbarplot, ylim=c(0,1), border=NA, space=0, xlim=c(0,120), xaxt='n', yaxt='n', col=ifelse(c12jamh2m$mode==0, "blue", ifelse(c12jamh2m$mode==1, "yellow", "hotpink")))
+par(mar=c(0.05,0,0.1,0))
+barplot(c13jamh1m$forbarplot, ylim=c(0,1), border=NA, space=0, xlim=c(0,120), xaxt='n', yaxt='n', col=ifelse(c13jamh1m$mode==0, "blue", ifelse(c13jamh1m$mode==1, "yellow", "hotpink")))
+par(mar=c(0.1,0,0.05,0))
+barplot(c13jamh2m$forbarplot, ylim=c(0,1), border=NA, space=0, xlim=c(0,120), xaxt='n', yaxt='n', col=ifelse(c13jamh2m$mode==0, "blue", ifelse(c13jamh2m$mode==1, "yellow", "hotpink")))
+par(mar=c(0.05,0,0.1,0))
+barplot(c14jamh1m$forbarplot, ylim=c(0,1), border=NA, space=0, xlim=c(0,120), xaxt='n', yaxt='n', col=ifelse(c14jamh1m$mode==0, "blue", ifelse(c14jamh1m$mode==1, "yellow", "hotpink")))
+par(mar=c(0.1,0,0.05,0))
+barplot(c14jamh2m$forbarplot, ylim=c(0,1), border=NA, space=0, xlim=c(0,120), xaxt='n', yaxt='n', col=ifelse(c14jamh2m$mode==0, "blue", ifelse(c14jamh2m$mode==1, "yellow", "hotpink")))
+par(mar=c(0.05,0,0.1,0))
+barplot(c15jamh1m$forbarplot, ylim=c(0,1), border=NA, space=0, xlim=c(0,120), xaxt='n', yaxt='n', col=ifelse(c15jamh1m$mode==0, "blue", ifelse(c15jamh1m$mode==1, "yellow", "hotpink")))
+par(mar=c(0.1,0,0.05,0))
+barplot(c15jamh2m$forbarplot, ylim=c(0,1), border=NA, space=0, xlim=c(0,120), xaxt='n', yaxt='n', col=ifelse(c15jamh2m$mode==0, "blue", ifelse(c15jamh2m$mode==1, "yellow", "hotpink")))
+par(mar=c(0.05,0,0.1,0))
+barplot(c16jamh1m$forbarplot, ylim=c(0,1), border=NA, space=0, xlim=c(0,120), xaxt='n', yaxt='n', col=ifelse(c16jamh1m$mode==0, "blue", ifelse(c16jamh1m$mode==1, "yellow", "hotpink")))
+par(mar=c(0.1,0,0.05,0))
+barplot(c16jamh2m$forbarplot, ylim=c(0,1), border=NA, space=0, xlim=c(0,120), xaxt='n', yaxt='n', col=ifelse(c16jamh2m$mode==0, "blue", ifelse(c16jamh2m$mode==1, "yellow", "hotpink")))
+par(mar=c(0.05,0,0.1,0))
+barplot(c17jamh1m$forbarplot, ylim=c(0,1), border=NA, space=0, xlim=c(0,120), xaxt='n', yaxt='n', col=ifelse(c17jamh1m$mode==0, "blue", ifelse(c17jamh1m$mode==1, "yellow", "hotpink")))
+par(mar=c(0.1,0,0.05,0))
+barplot(c17jamh2m$forbarplot, ylim=c(0,1), border=NA, space=0, xlim=c(0,120), xaxt='n', yaxt='n', col=ifelse(c17jamh2m$mode==0, "blue", ifelse(c17jamh2m$mode==1, "yellow", "hotpink")))
+par(mar=c(0.05,0,0.1,0))
+barplot(c18jamh1m$forbarplot, ylim=c(0,1), border=NA, space=0, xlim=c(0,120), xaxt='n', yaxt='n', col=ifelse(c18jamh1m$mode==0, "blue", ifelse(c18jamh1m$mode==1, "yellow", "hotpink")))
+par(mar=c(0.1,0,0.05,0))
+barplot(c18jamh2m$forbarplot, ylim=c(0,1), border=NA, space=0, xlim=c(0,120), xaxt='n', yaxt='n', col=ifelse(c18jamh2m$mode==0, "blue", ifelse(c18jamh2m$mode==1, "yellow", "hotpink")))
+par(mar=c(0.05,0,0.1,0))
+barplot(c19jamh1m$forbarplot, ylim=c(0,1), border=NA, space=0, xlim=c(0,120), xaxt='n', yaxt='n', col=ifelse(c19jamh1m$mode==0, "blue", ifelse(c19jamh1m$mode==1, "yellow", "hotpink")))
+par(mar=c(0.1,0,0.05,0))
+barplot(c19jamh2m$forbarplot, ylim=c(0,1), border=NA, space=0, xlim=c(0,120), xaxt='n', yaxt='n', col=ifelse(c19jamh2m$mode==0, "blue", ifelse(c19jamh2m$mode==1, "yellow", "hotpink")))
+par(mar=c(0.05,0,0.1,0))
+barplot(c20jamh1m$forbarplot, ylim=c(0,1), border=NA, space=0, xlim=c(0,120), xaxt='n', yaxt='n', col=ifelse(c20jamh1m$mode==0, "blue", ifelse(c20jamh1m$mode==1, "yellow", "hotpink")))
+par(mar=c(0.1,0,0.05,0))
+barplot(c20jamh2m$forbarplot, ylim=c(0,1), border=NA, space=0, xlim=c(0,120), xaxt='n', yaxt='n', col=ifelse(c20jamh2m$mode==0, "blue", ifelse(c20jamh2m$mode==1, "yellow", "hotpink")))
+par(mar=c(0.05,0,0.1,0))
+barplot(c21jamh1m$forbarplot, ylim=c(0,1), border=NA, space=0, xlim=c(0,120), xaxt='n', yaxt='n', col=ifelse(c21jamh1m$mode==0, "blue", ifelse(c21jamh1m$mode==1, "yellow", "hotpink")))
+par(mar=c(0.1,0,0.05,0))
+barplot(c21jamh2m$forbarplot, ylim=c(0,1), border=NA, space=0, xlim=c(0,120), xaxt='n', yaxt='n', col=ifelse(c21jamh2m$mode==0, "blue", ifelse(c21jamh2m$mode==1, "yellow", "hotpink")))
+par(mar=c(0.05,0,0.1,0))
+barplot(c22jamh1m$forbarplot, ylim=c(0,1), border=NA, space=0, xlim=c(0,120), xaxt='n', yaxt='n', col=ifelse(c22jamh1m$mode==0, "blue", ifelse(c22jamh1m$mode==1, "yellow", "hotpink")))
+par(mar=c(0.1,0,0.05,0))
+barplot(c22jamh2m$forbarplot, ylim=c(0,1), border=NA, space=0, xlim=c(0,120), xaxt='n', yaxt='n', col=ifelse(c22jamh2m$mode==0, "blue", ifelse(c22jamh2m$mode==1, "yellow", "hotpink")))
+
+ 
+
