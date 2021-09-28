@@ -1,0 +1,55 @@
+# prepare_files_forMIS_GSproject2_v2.docx
+# on cnrc server, folder HGTJAM2etc
+plink --bfile HGTJAM_GSproject2_v3_auto_genoQC005hwe1e-18_diffmissQC_mindQC01_ibdQC --freq --out HGTJAM_GSproject2_forMIS_v3.frequency
+
+
+# on bcm server, in nclie (it doesn't matter which folder really) 
+
+sudo scp nclie@cnrcseq.cnrc.bcm.edu:/home/nclie/HGTJAM2_PLINK_010818_0342/HGTJAM_GSproject2_v3_auto_genoQC005hwe1e-18_diffmissQC_mindQC01_ibdQC.bed nclie@dcl-hanch-p01.ad.bcm.edu:/mnt/hanchardlab/nclie/GSproject2_forMIS_perl_v3
+
+sudo scp nclie@cnrcseq.cnrc.bcm.edu:/home/nclie/HGTJAM2_PLINK_010818_0342/HGTJAM_GSproject2_v3_auto_genoQC005hwe1e-18_diffmissQC_mindQC01_ibdQC.bim nclie@dcl-hanch-p01.ad.bcm.edu:/mnt/hanchardlab/nclie/GSproject2_forMIS_perl_v3
+
+sudo scp nclie@cnrcseq.cnrc.bcm.edu:/home/nclie/HGTJAM2_PLINK_010818_0342/HGTJAM_GSproject2_v3_auto_genoQC005hwe1e-18_diffmissQC_mindQC01_ibdQC.fam nclie@dcl-hanch-p01.ad.bcm.edu:/mnt/hanchardlab/nclie/GSproject2_forMIS_perl_v3
+
+sudo scp nclie@cnrcseq.cnrc.bcm.edu:/home/nclie/HGTJAM2_PLINK_010818_0342/HGTJAM_GSproject2_forMIS_v3.frequency.frq nclie@dcl-hanch-p01.ad.bcm.edu:/mnt/hanchardlab/nclie/GSproject2_forMIS_perl_v3
+
+sudo scp -r nclie@cnrcseq.cnrc.bcm.edu:/home/nclie/all.caapa.sorted nclie@dcl-hanch-p01.ad.bcm.edu:/mnt/hanchardlab/nclie
+
+sudo scp -r nclie@cnrcseq.cnrc.bcm.edu:/home/nclie/HRC-1000G-check-bim-v4.2.9 nclie@dcl-hanch-p01.ad.bcm.edu:/mnt/hanchardlab/nclie
+
+# in GSproject2_forMIS_perl_v3
+perl /mnt/hanchardlab/nclie/HRC-1000G-check-bim-v4.2.9/HRC-1000G-check-bim.pl -b HGTJAM_GSproject2_v3_auto_genoQC005hwe1e-18_diffmissQC_mindQC01_ibdQC.bim -f HGTJAM_GSproject2_forMIS_v3.frequency.frq -r /mnt/hanchardlab/nclie/all.caapa.sorted/all.caapa.sorted.txt -h 
+
+
+# whoop de do i have to move everything back into the cnrc server, and go into the GSproject2_forMIS_perl_v3 folder 
+scp -r  nclie@dcl-hanch-p01.ad.bcm.edu:/mnt/hanchardlab/nclie/GSproject2_forMIS_perl_v3 nclie@cnrcseq.cnrc.bcm.edu:/home/nclie/HGTJAM2_PLINK_010818_0342
+
+# move Run-plink.sh to your computer to indicate the location of the plink program on the BCM server in the script. then move back to the BCM server 
+
+chmod u+x Run-plink-editforBCMserver.sh 
+./Run-plink-editforBCMserver.sh 
+# the script didn't actually work for me, i just pasted each command one by one  
+
+for var in $(seq 1 22)
+do
+/mnt/hanchardlab/bin/plink_beta/plink --bfile HGTJAM_GSproject2_v3_auto_genoQC005hwe1e-18_diffmissQC_mindQC01_ibdQC-updated-chr${var} \
+      --recode vcf \
+      --out HGTJAM_GSproject2_chr${var}_forMIS_perl_v3.VCF.Format
+done 
+
+# move files from BCM server to CNRC server 
+for var in $(seq 17 22)
+do
+sudo scp nclie@dcl-hanch-p01.ad.bcm.edu:/mnt/hanchardlab/nclie/GSproject2_forMIS_perl_v3/HGTJAM_GSproject2_chr${var}_forMIS_perl_v3.VCF.Format.vcf nclie@cnrcseq.cnrc.bcm.edu:/home/nclie/HGTJAM2_PLINK_010818_0342/GSproject2_forMIS_perl_v3 
+done
+
+# now in CNRC server, HGTJAM2/GSprojec2_v3etccc 
+for var in $(seq 1 22)
+do
+vcf-sort HGTJAM_GSproject2_chr${var}_forMIS_perl_v3.VCF.Format.vcf | bgzip -c > HGTJAM_GSproject2_chr${var}_forMIS_perl_v3.vcf.gz
+done 
+
+
+
+/mnt/hanchardlab/bin/bcftools-1.8/htslib-1.8
+
