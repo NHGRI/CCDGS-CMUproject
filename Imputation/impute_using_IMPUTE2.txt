@@ -1,0 +1,410 @@
+# ocm_imputation_script_K-MKvM_2018.docx
+# the directory on the server 
+cd /home/nclie/K-MKvM_redo_2018 
+
+# ALIGNMENT 
+# note that the binary PED files I'm starting with say 'autosomes', meaning we're only gonna align and impute across chr:1-22
+chrom='1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22'
+for var in $chrom; do  plink --bfile /home/nclie/project2/proj2try3/try3_update_sex_autosomes --pheno phenoK-MKvM_2018.txt --chr $var --make-bed --out gendata_chr$[var]_K-MKvM_2018; done
+
+# did we lose any SNPs in the split?: 
+wc -l gendata_chr*_K-MKvM_2018.bim 
+# 450012
+wc -l /home/nclie/project2/proj2try3/try3_update_sex_autosomes.bim
+# 450012 
+# good! 
+
+# check 1
+for var in $chrom; do  shapeit -check --input-bed gendata_chr$[var]_K-MKvM_2018 --input-map /home/hanchardlab/LVOTO_GCTA/1000G_PHASE3_BUILD37_IMPUTE2/1000GP_Phase3/genetic_map_chr$[var]_combined_b37.txt --input-ref /home/hanchardlab/LVOTO_GCTA/1000G_PHASE3_BUILD37_IMPUTE2/1000GP_Phase3/1000GP_Phase3_chr$[var].hap.gz /home/hanchardlab/LVOTO_GCTA/1000G_PHASE3_BUILD37_IMPUTE2/1000GP_Phase3/1000GP_Phase3_chr$[var].legend.gz /home/hanchardlab/LVOTO_GCTA/1000G_PHASE3_BUILD37_IMPUTE2/1000GP_Phase3/1000GP_Phase3.sample --output-log gendata_chr$[var]_alignmentcheck1_K-MKvM_2018; done 
+
+# perhaps for chr23 in the future https://mathgen.stats.ox.ac.uk/genetics_software/shapeit/shapeit.html#gmap 
+# error: reference and main panels are not well aligned - well, i think the point of this is to identify that, so good 
+
+# Get list of mismatched SNPs and flip them
+for var in $chrom ; do  awk '{if($1 ~/Strand/) print $4}' gendata_chr$[var]_alignmentcheck1_K-MKvM_2018.snp.strand | sort | uniq -c | awk '{print $2}' > gendata_chr$[var]_alignmentcheck1_SNPstoflip_K-MKvM_2018.txt; done
+
+for var in $chrom ; do plink --bfile gendata_chr$[var]_K-MKvM_2018 --flip gendata_chr$[var]_alignmentcheck1_SNPstoflip_K-MKvM_2018.txt --make-bed --out gendata_chr$[var]_flipSNPs_K-MKvM_2018; done
+
+# Get list of missing SNPs and exclude them
+for var in $chrom; do awk '{if($1 ~/Missing/) print $4}' gendata_chr$[var]_alignmentcheck1_K-MKvM_2018.snp.strand | sort | uniq -c | awk '{print $2}' > gendata_chr$[var]_alignmentcheck1_SNPstoremove_K-MKvM_2018.txt; done
+
+# so how many SNPs are going to be removed? 
+wc -l gendata_chr*_alignmentcheck1_SNPstoremove_K-MKvM_2018.txt 
+# 1087 (just like the last time i did imputation - that's a good sign) 
+
+for var in $chrom; do plink --bfile gendata_chr$[var]_flipSNPs_K-MKvM_2018 --exclude gendata_chr$[var]_alignmentcheck1_SNPstoremove_K-MKvM_2018.txt --make-bed --out gendata_chr$[var]_flipSNPsremoveSNPs_K-MKvM_2018;  done 
+
+# did we remove the right number? yes! 
+wc -l gendata_chr*_flipSNPsremoveSNPs_K-MKvM_2018.bim
+# 448925
+# if you add 1087 you get 450012, which is the number we started with 
+
+# check 2
+for var in $chrom; do  shapeit -check --input-bed gendata_chr$[var]_flipSNPsremoveSNPs_K-MKvM_2018 --input-map /home/hanchardlab/LVOTO_GCTA/1000G_PHASE3_BUILD37_IMPUTE2/1000GP_Phase3/genetic_map_chr$[var]_combined_b37.txt --input-ref /home/hanchardlab/LVOTO_GCTA/1000G_PHASE3_BUILD37_IMPUTE2/1000GP_Phase3/1000GP_Phase3_chr$[var].hap.gz /home/hanchardlab/LVOTO_GCTA/1000G_PHASE3_BUILD37_IMPUTE2/1000GP_Phase3/1000GP_Phase3_chr$[var].legend.gz /home/hanchardlab/LVOTO_GCTA/1000G_PHASE3_BUILD37_IMPUTE2/1000GP_Phase3/1000GP_Phase3.sample --output-log gendata_chr$[var]_alignmentcheck2_K-MKvM_2018 --thread 8; done 
+# there are still a few not aligned - again, that's why we're doing alignment checks (I feel compelled to remind myself that the error messages are okay) 
+
+# Get list of mismatched SNPs and exclude them
+for var in $chrom 
+do
+awk '{if($1 ~/Strand/) print $4}' gendata_chr$[var]_alignmentcheck2_K-MKvM_2018.snp.strand | sort | uniq -c | awk '{print $2}' > gendata_chr$[var]_alignmentcheck2_SNPstoremove_K-MKvM_2018.txt
+done 
+# no snp.strand file for chr21 
+
+# how many SNPs to remove? 
+wc -l gendata_chr*_alignmentcheck2_SNPstoremove_K-MKvM_2018.txt 
+# 140, same as last time, good 
+
+for var in $chrom 
+do
+plink --bfile gendata_chr$[var]_flipSNPsremoveSNPs_K-MKvM_2018 \
+--exclude gendata_chr$[var]_alignmentcheck2_SNPstoremove_K-MKvM_2018.txt \
+--make-bed \
+--out gendata_chr$[var]_forIMPUTE2_K-MKvM_2018
+done 
+
+# how many SNPs left? 
+wc -l gendata_chr*_forIMPUTE2_K-MKvM_2018.bim 
+# 448785
+# this plus 140 equals 448925, which is what we had right before check 2 
+
+# check 3 
+for var in $chrom
+do 
+shapeit -check \
+--input-bed gendata_chr$[var]_forIMPUTE2_K-MKvM_2018 --input-map /home/hanchardlab/LVOTO_GCTA/1000G_PHASE3_BUILD37_IMPUTE2/1000GP_Phase3/genetic_map_chr$[var]_combined_b37.txt --input-ref /home/hanchardlab/LVOTO_GCTA/1000G_PHASE3_BUILD37_IMPUTE2/1000GP_Phase3/1000GP_Phase3_chr$[var].hap.gz /home/hanchardlab/LVOTO_GCTA/1000G_PHASE3_BUILD37_IMPUTE2/1000GP_Phase3/1000GP_Phase3_chr$[var].legend.gz /home/hanchardlab/LVOTO_GCTA/1000G_PHASE3_BUILD37_IMPUTE2/1000GP_Phase3/1000GP_Phase3.sample --output-log gendata_chr$[var]_alignmentcheck3_K-MKvM_2018 --thread 8 
+done 
+# the time it takes for each check gets progressively longer. I wonder why that is. 
+
+# I should get no .snp.strand files
+ls -gothr *alignmentcheck3*.snp.strand
+# "no such file or directory", good 
+# skip phasing in shapeit2 because I’m imputing over a small range 
+
+# converting BED to PED, and then converting PED to GEN, and then using GEN files for imputation 
+chrom='1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22'
+for var in $chrom 
+do
+plink --bfile gendata_chr$[var]_forIMPUTE2_K-MKvM_2018 --pheno phenoK-MKvM_2018.txt --recode --tab --out gendata_chr$[var]_aligned_K-MKvM_2018
+done
+
+for var in $chrom 
+do
+gtool -P --ped gendata_chr$[var]_aligned_K-MKvM_2018.ped --map gendata_chr$[var]_aligned_K-MKvM_2018.map --og gendata_chr$[var]_aligned_K-MKvM_2018.gen --os gendata_chr$[var]_aligned_K-MKvM_2018.sample --family --log gendata_chr$[var]_aligned_K-MKvM_2018.log
+done
+## the --family tag does some weird things to the IDs, so just be aware of that for the steps down the line - there must be something down there where I fix the IDs 
+
+# I inputted my file of chromosome and position information with genes 
+# trying to split up the file into individual chromosomes (USE R!) 
+## DO NOT USE THE 250Kbuffer file! when doing imputation, the buffer will be added on by the program! if you add on the buffer manually, you'll end up with a 500K buffer region! 
+# I moved extract_chrpos_ocm.txt to 
+read.table("extract_chrpos_ocm.txt") -> aight
+names(aight) <- c("chromosome_name", "start_position", "end_position", "gene_id")
+chrom <- c(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23) 
+for(i in 1:length(chrom)){
+ print(aight[grep(paste("^",chrom,"$", sep="")[i], aight$chromosome_name),]) -> info 
+ assign(paste("int_chr", i, sep = ""), info)
+}
+
+datalist =lapply(ls(pattern = "^int_chr"), get)
+names(datalist) <- (ls(pattern = "^int_chr"))
+for (i in 1:length(datalist)) {
+  write.table(datalist[i], file = paste(names(datalist[i]), "_ocm_K-MKvM_2018.txt", sep = ""), col.names= F, row.names=F, sep = " ", quote=FALSE)
+}
+
+# get out of R 
+# did we get all the regions?? yes! 
+wc -l int_chr*_ocm_K-MKvM_2018.txt 
+# 99
+wc -l extract_chrpos_ocm.txt
+# 99 good!  
+
+# I made a script called imputation_K-MKvM_2018.sh that contained the following: 
+## the 'while read' line is where you tell it what each column of your regions files means!
+chrom='1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22'
+for var in $chrom 
+do 
+while read -r chr pstart pend gene 
+do 
+impute232 -m /home/hanchardlab/LVOTO_GCTA/1000G_PHASE3_BUILD37_IMPUTE2/1000GP_Phase3/genetic_map_chr${var}_combined_b37.txt -h /home/hanchardlab/LVOTO_GCTA/1000G_PHASE3_BUILD37_IMPUTE2/1000GP_Phase3/1000GP_Phase3_chr${var}.hap.gz -l /home/hanchardlab/LVOTO_GCTA/1000G_PHASE3_BUILD37_IMPUTE2/1000GP_Phase3/1000GP_Phase3_chr${var}.legend.gz -g gendata_chr${var}_aligned_K-MKvM_2018.gen -int $pstart $pend -o gendata_chr${var}_${gene}_K-MKvM_2018.impute2
+done < int_chr${var}_ocm_K-MKvM_2018.txt 
+done 
+# then I changed the permissions to allow me to execute the script 
+chmod u+x imputation_K-MKvM_2018.sh
+# then I ran the script in the background 
+nohup ./imputation_K-MKvM_2018.sh & 
+# the job ID or number or whatever is 
+
+# I made sure all the genes I queried were at least attempted to be imputed, and they were.
+ls gendata_chr*_K-MKvM_2018.impute2_summary | wc -l
+# 97! this makes sense because we didn't impute across ch23, which had 2 regions, 97 + 2 = 99 regions  
+# Then I checked the warnings files; they were all empty. 
+cat gendata_chr*_K-MKvM_2018.impute2_warnings
+# Then I looked to see which regions got imputed and which did not, and looked at the summary files of the genes not imputed to see why. 
+ls gendata_chr*_K-MKvM_2018.impute2_info | wc -l
+# 96
+# the region that didn't get imputed was OCLN in chr5, which didn’t have genotype SNPs in the analysis region ("no Type 2 SNPs") - this happened last time as well 
+
+## MORE IMPUTATION 
+# there were some regions that overlapped, and this caused duplications of SNPs, which caused problems later on when merging. I tried to merge PLINK files together and got errors at chr 8, 12, and 22. I need to figure out a way to identify which regions overlap BEFORE I do imputation next time. I’m not sure how, other than just looking with my eyeballs at every line…
+# I made a text file of the regions to re-impute called int_re-impute_ocm.txt
+CA13-CA1-CA3-CA2 8 85220587 85481493 q21.2
+SDS-SDSL 12 113392445 113438276 q24.13
+TST-MPST 22 37010859 37029822 q12.3
+# rename all the impute2 files already made of these genes as “bad” 
+
+while read -r gene chr pstart pend band 
+do 
+impute232 -m /home/hanchardlab/LVOTO_GCTA/1000G_PHASE3_BUILD37_IMPUTE2/1000GP_Phase3/genetic_map_chr${chr}_combined_b37.txt -h /home/hanchardlab/LVOTO_GCTA/1000G_PHASE3_BUILD37_IMPUTE2/1000GP_Phase3/1000GP_Phase3_chr${chr}.hap.gz -l /home/hanchardlab/LVOTO_GCTA/1000G_PHASE3_BUILD37_IMPUTE2/1000GP_Phase3/1000GP_Phase3_chr${chr}.legend.gz -g gendata2_chr${chr}_aligned.gen -int $pstart $pend -o genodata2_chr${chr}_$gene.impute2
+done < int_re-impute_ocm.txt 
+
+# QC time
+
+# combine all impute2 files from one chr together 
+## i don't have any regions in chr13 so I'm leaving it out, see 
+for var in $chrXm 
+do 
+cat gendata_chr${var}_*K-MKvM_2018.impute2 > ALL_gendata_chr${var}_K-MKvM_2018.impute2 
+done 
+
+# use PLINK 1.9 to convert .impute2 to bed files 
+## leaving out chr13 again 
+chrXm='1 2 3 4 5 6 7 8 9 10 11 12 14 15 16 17 18 19 20 21 22'
+for var in $chrXm 
+do 
+~/PLINK19/plink \
+--gen ALL_gendata_chr${var}_K-MKvM_2018.impute2 \
+--sample gendata_chr${var}_aligned_K-MKvM_2018.sample \
+--oxford-single-chr $var \
+--hard-call-threshold 0.1 \
+--make-bed \
+--out ALL_imputeQC_chr${var}_K-MKvM_2018
+done 
+# the script for chrX, if you want it, is in a different doc   
+
+# I don’t need to update phenotypes because I already did, and thank goodness for that because the family IDs and sample IDs got pretty stupid on these files 
+
+## MERGING 
+# I made a file called ‘merging_files_K-MKvM_2018.txt’ that listed all the bed, bim, fam files I wanted to merge together, EXCEPT chr1 
+plink --bfile ALL_imputeQC_chr1_K-MKvM_2018 --merge-list merging_files_K-MKvM_2018.txt --make-bed --out merged_files_K-MKvM_2018
+
+# maybe this is where I can fix the family and sample IDs that got messed up from GTOOL - PLINK has a way to edit IDs. 
+
+# did we lose any SNPs?
+cat ALL_imputeQC_chr*_K-MKvM_2018.bim | wc -l
+# 201771
+wc -l merged_files_K-MKvM_2018.bim
+# 201771
+
+# “merge” all the impute2_info files together as well 
+cat gendata_chr*_K-MKvM_2018.impute2_info > merged_K-MKvM_2018.impute2_info 
+grep -v "snp_id" merged_K-MKvM_2018.impute2_info > merged_nohead_K-MKvM_2018.impute2_info
+
+# and we have the same number of SNPs 
+wc -l merged_nohead_K-MKvM_2018.impute2_info
+# 201771 
+
+# I moved the file to my computer (in Z:/nclie/K-MKvM_redo_2018) so I could make a histogram and actually see it 
+# I made a histogram to determine what would be a good threshold for the info metric 
+read.table("Z:/nclie/K-MKvM_redo_2018/merged_nohead_K-MKvM_2018.impute2_info", header=F) -> wow
+hist(wow$V7, main="Histogram of OCM Imputation Info Metric, Merged", xlab="Info Metric")
+# I saved it as Z:/nclie/K-MKvM_redo_2018/hist_ocm_imp_infometric_K-MKvM_2018.png
+
+# Back on the server 
+# Filter variants for info metric > 0.3
+cat merged_nohead_K-MKvM_2018.impute2_info | \
+awk '{if($7 > 0.3) print $2}' \
+> merged_info03_K-MKvM_2018.txt
+# how many SNPs? 
+wc -l merged_info03_K-MKvM_2018.txt
+# 67691
+
+~/PLINK19/plink \
+--bfile merged_files_K-MKvM_2018 \
+--extract merged_info03_K-MKvM_2018.txt \
+--make-bed \
+--out merged_info03_K-MKvM_2018
+# should be 0.9
+# genotyping rate is only about 95% 
+# how many SNPs? 
+wc -l merged_info03_K-MKvM_2018.bim
+# 67691
+
+# Filter only SNPs
+~/PLINK19/plink \
+--bfile merged_info03_K-MKvM_2018 \
+--snps-only no-DI \
+--make-bed \
+--out merged_info03_snpsonly_K-MKvM_2018
+# how many SNPs? 
+wc -l merged_info03_snpsonly_K-MKvM_2018.bim
+# 61807 
+
+# “normal” QC 
+# as you filter out again and again, keep watch over your number of SNPs/markers and your number of individuals. make sure they drop at a reasonable rate, not too much or too little at one filtering step. 
+
+### Apply QC filters ###
+# Genotyping/missing rate statistics
+plink --bfile merged_info03_snpsonly_K-MKvM_2018 \
+--missing \
+--out imp_merged_info03_missstat_K-MKvM_2018
+
+# Exclude samples with missing rate > 0.1
+plink --bfile merged_info03_snpsonly_K-MKvM_2018 \
+--mind 0.1 \
+--make-bed \
+--out imp_merged_info03_mindQC01_K-MKvM_2018 
+# should be 0.02
+wc -l imp_merged_info03_mindQC01_K-MKvM_2018.bim
+# 61807 
+
+# Allele frequency statistics
+plink --bfile imp_merged_info03_mindQC01_K-MKvM_2018 \
+--freq \
+--out imp_merged_info03_mindQC01_mafstat_K-MKvM_2018
+
+# Hardy-Weinberg Equilibrium (HWE) test statistics
+plink --bfile imp_merged_info03_mindQC01_K-MKvM_2018 \
+--hardy \
+--out imp_merged_info03_mindQC01_hwestat_K-MKvM_2018
+
+# Exclude SNPs with missing rate per SNP > 0.1, MAF < 0.01, and HWE <= 0.001
+plink --bfile imp_merged_info03_mindQC01_K-MKvM_2018 \
+--geno 0.1 \
+--maf 0.01 \
+--hwe 0.001 \
+--make-bed \
+--out imp_merged_info03_mindQC01genoQC01_maf01hwe_K-MKvM_2018
+# --geno should be 0.02, maf should be 0.-05, hwe should be 0.001 (smaller is less stringent?) 
+wc -l imp_merged_info03_mindQC01genoQC01_maf01hwe_K-MKvM_2018.bim
+# 23890
+
+# Exclude SNPs with missingness by case/control status p<0.001
+plink --bfile imp_merged_info03_mindQC01genoQC01_maf01hwe_K-MKvM_2018 \
+--test-missing \
+--out imp_merged_info03_mindQC01genoQC01_maf01hwe_diffmiss_K-MKvM_2018
+
+awk '{if($5 < 0.001) print $2}' \
+imp_merged_info03_mindQC01genoQC01_maf01hwe_diffmiss_K-MKvM_2018.missing \
+> imp_merged_info03_mindQC01genoQC01_maf01hwe_diffmissSNPs_K-MKvM_2018.txt
+# should be 0.001
+
+plink --bfile imp_merged_info03_mindQC01genoQC01_maf01hwe_K-MKvM_2018 \
+--exclude imp_merged_info03_mindQC01genoQC01_maf01hwe_diffmissSNPs_K-MKvM_2018.txt \
+--make-bed \
+--out imp_merged_info03_mindQC01genoQC01_maf01hwe_diffmissQC_K-MKvM_2018
+wc -l imp_merged_info03_mindQC01genoQC01_maf01hwe_diffmissQC_K-MKvM_2018.bim
+# 23877 
+
+### LD based SNP pruning (--indep-pairwise 50 10 1) ###
+plink --bfile imp_merged_info03_mindQC01genoQC01_maf01hwe_diffmissQC_K-MKvM_2018 \
+--indep-pairwise 50 10 1 \
+--out imp_merged_info03_mindQC01genoQC01_maf01hwe_diffmissQC_LD1_K-MKvM_2018
+# should be 50 10 0.1 - first value is window size (50 SNPs), second value is how many SNPs/”steps” you move when you move the window (10 SNPs), third value is the r^2. The larger the threshold, the less stringent, and the larger the window, the less stringent. 
+
+plink --bfile imp_merged_info03_mindQC01genoQC01_maf01hwe_diffmissQC_K-MKvM_2018 \
+--extract imp_merged_info03_mindQC01genoQC01_maf01hwe_diffmissQC_LD1_K-MKvM_2018.prune.in \
+--make-bed \
+--out imp_merged_info03_mindQC01genoQC01_maf01hwe_diffmissQC_pruned_K-MKvM_2018
+wc -l imp_merged_info03_mindQC01genoQC01_maf01hwe_diffmissQC_pruned_K-MKvM_2018.bim
+# 19190 
+
+### Inbreeding coefficients ###
+plink --bfile imp_merged_info03_mindQC01genoQC01_maf01hwe_diffmissQC_pruned_K-MKvM_2018 \
+--het \
+--out imp_merged_info03_mindQC01genoQC01_maf01hwe_diffmissQC_pruned_het_K-MKvM_2018
+# this automatically skips male X and Y thank goodness 
+# so the F values range from 0.2 to -0.2, which is a more dramatic spread than Shanker had. from reading the PLINK website, it seems like the farther away from 0 F is, the more it suggests inbreeding, and it may need to be filtered out. negative values are “more random than random” which is usually fine, but if it’s too negative then it may suggest contamination 
+
+wc -l imp_merged_info03_mindQC01genoQC01_maf01hwe_diffmissQC_pruned_K-MKvM_2018.bim
+# 
+
+# I stopped here 
+### Pairwise IBD estimation ###
+plink --bfile imp_merged_info03_mindQC01genoQC01_maf01hwe_diffmissQC_pruned_K-MKvM_2018 \
+--genome \
+--out imp_merged_info03_mindQC01genoQC01_maf01hwe_diffmissQC_pruned_IBD_K-MKvM_2018
+# my largest PI-HAT is 0.3, which is much larger than Shanker’s 0.08 
+
+# exclusion based on PI_HAT - only do so if you've got genome-wide data. I do not, so I don't need to exclude 
+# Identified pairs with PI_HAT >=0.35
+awk '{if($10 >= 0.35) print}' \
+imp_merged_info03_mindQC01genoQC01_maf01hwe_diffmissQC_pruned_IBD_K-MKvM_2018.genome \
+> imp_merged_info03_mindQC01genoQC01_maf01hwe_diffmissQC_pruned_IBD_genome035samp_K-MKvM_2018.txt 
+# should be 0.05 
+# the sample pairs are: 141_JMICSM254 and 89_JMM175, SEM2_IDX142_SEM2_IDX142-JMICSM386 and SEM2_IDX149_SEM2_IDX149-JMICSM214
+
+# In a given pair with a PI_HAT greater than or equal to X, which member of that pair has a higher missingness rate? Throw that one out! Do this for all pairs with PI_HAT greater than or equal to X. 
+# get the missingness rates of the samples (why did he use the pre-pruned files?? we have pruned files! I guess it doesn’t really matter) 
+plink --bfile imp_merged_info03_mindQC01genoQC01_maf01hwe_diffmissQC_K-MKvM_2018 \
+--missing \
+--out imp_merged_info03_mindQC01genoQC01_maf01hwe_diffmissQC_K-MKvM_2018 
+
+# compare the first of the two pairs that I have where the PI_HAT is greater than X 
+grep "141_JMICSM254" imp_merged_info03_mindQC01genoQC01_maf01hwe_diffmissQC.imiss 
+# F_MISS = 0.03959
+grep "89_JMM175" imp_merged_info03_mindQC01genoQC01_maf01hwe_diffmissQC.imiss 
+# F_MISS = 0.03438, so the first sample will be thrown out 
+
+# compare the second of the two pairs that I have where the PI_HAT is greater than X 
+grep "SEM2_IDX142_SEM2_IDX142-JMICSM386" imp_merged_info03_mindQC01genoQC01_maf01hwe_diffmissQC.imiss 
+# F_MISS is 0.05323 
+grep "SEM2_IDX149_SEM2_IDX149-JMICSM214" imp_merged_info03_mindQC01genoQC01_maf01hwe_diffmissQC.imiss 
+# F_MISS is 0.03058, so I will again be excluding the first of the pair 
+
+# make a file called imp_merged_info03_mindQC01genoQC01_maf01hwe_diffmissQC_pruned_IBD_excludesamp.txt, containing the samples you want to remove 
+# removal from the pre-pruned file 
+plink --bfile imp_merged_info03_mindQC01genoQC01_maf01hwe_diffmissQC \
+--remove imp_merged_info03_mindQC01genoQC01_maf01hwe_diffmissQC_pruned_IBD_excludesamp.txt \
+--make-bed \
+--out imp_merged_info03_mindQC01genoQC01_maf01hwe_diffmissQCibdQC
+
+# removal from the pruned file 
+plink --bfile imp_merged_info03_mindQC01genoQC01_maf01hwe_diffmissQC_pruned \
+--remove imp_merged_info03_mindQC01genoQC01_maf01hwe_diffmissQC_pruned_IBD_excludesamp.txt \
+--make-bed \
+--out imp_merged_info03_mindQC01genoQC01_maf01hwe_diffmissQC_pruned_ibdQC
+
+### Multidimensional scaling plots ###
+plink --bfile imp_merged_info03_mindQC01genoQC01_maf01hwe_diffmissQC_pruned \
+--read-genome imp_merged_info03_mindQC01genoQC01_maf01hwe_diffmissQC_pruned_IBD.genome \
+--cluster \
+--mds-plot 6 \
+--out imp_merged_info03_mindQC01genoQC01_maf01hwe_diffmissQC_pruned_PCA
+# I plotted C2 vs. C1 and kind of saw two clusters…um…but no outliers? maybe I can use C1 and C2 as covariates when I do association analysis 
+
+### Extract subset of samples (to get the most “normal” - note that he’s only keeping samples within X standard deviations of the mean of C1 and C2 (from .mds)) 
+# I gotta make files with the descriptive statistics first, then determine which individuals fall into which SDs 
+# 2 sd
+plink --bfile ${RENAMEFILE}_mindQCgenoQCdiffmissQCibdQC \
+--keep ${SUBSET2SDFILE} \
+--make-bed \
+--out ${RENAMEFILE}_mindQCgenoQCdiffmissQCibdQC_2sdsubset
+# Reading individuals to keep ... 2867 read
+# 148 individuals removed with --keep option
+# After filtering, 242 cases, 2625 controls and 0 missing
+# After filtering, 1366 males, 1501 females, and 0 of unspecified sex
+
+plink --bfile ${RENAMEFILE}_mindQCgenoQCdiffmissQC_pruned_ibdQC \
+--keep ${SUBSET2SDFILE} \
+--make-bed \
+--out ${RENAMEFILE}_mindQCgenoQCdiffmissQC_pruned_ibdQC_2sdsubset
+# Reading individuals to keep ... 2867 read
+# 148 individuals removed with --keep option
+
+# 4 sd
+plink --bfile ${RENAMEFILE}_mindQCgenoQCdiffmissQCibdQC \
+--keep ${SUBSET4SDFILE} \
+--make-bed \
+--out ${RENAMEFILE}_mindQCgenoQCdiffmissQCibdQC_4sdsubset
+# Reading individuals to keep ... 2990 read
+# 25 individuals removed with --keep option
+# After filtering, 251 cases, 2739 controls and 0 missing
+# After filtering, 1424 males, 1566 females, and 0 of unspecified sex
+
+plink --bfile ${RENAMEFILE}_mindQCgenoQCdiffmissQC_pruned_ibdQC \
+--keep ${SUBSET4SDFILE} \
+--make-bed \
+--out ${RENAMEFILE}_mindQCgenoQCdiffmissQC_pruned_ibdQC_4sdsubset
+# Reading individuals to keep ... 2990 read
+# 25 individuals removed with --keep option
+
