@@ -31,10 +31,6 @@ pricklesnps <- c("3:64137371","3:64146322","3:64160053","3:64161259","3:64177029
 
 dhritibp$pricklesnps <- ifelse(dhritibp$chrpos %in% pricklesnps == TRUE, dhritibp$iHS_norm, NA)
 
-# extract OCM SNPs 
-read.table("Y:/HGTJAM_GSproject/HGTJAM_GSproject2/tomato/tomato_geno_ocmSNPs_50Kflank_allsamps_chi2.assoc", header=TRUE) -> ocmsnps 
-dhritibp$softbar <- ifelse(dhri
-
 library(ggplot2)
 library(ggtext)
 library(dplyr) 
@@ -100,7 +96,7 @@ normihs$category <- "all"
 ocmihs$category <- "ocm"
 
 rbind(normihs, ocmihs) -> myihs
-myihs$category <- factor(myihs$category , levels=c("ocm", "all")
+myihs$category <- factor(myihs$category , levels=c("ocm", "all"))
 
 pricklesnpss <- c("rs753562","rs17664202","rs153740","rs153737","rs161666","rs153728","kgp8116060")
 
@@ -167,7 +163,7 @@ normihs$category <- "all"
 ocmihs$category <- "ocm"
 
 rbind(normihs, ocmihs) -> myihs
-myihs$category <- factor(myihs$category , levels=c("ocm", "all")
+myihs$category <- factor(myihs$category , levels=c("ocm", "all"))
 
 pricklesnpss <- c("rs753562","rs17664202","rs153740","rs153737","rs161666","rs153728","kgp8116060")
 
