@@ -5,7 +5,9 @@
 sinteractive --mem=32g --cpus-per-task=8 --time=24:00:00
 
 ################## This part 1 files only need to be done once and they were prepared. ##################
-################## PLEASE DO NOT run the following script aganin in the same folder.   ##################
+################## PLEASE DO NOT run the following script again in the same folder.   ###################
+################## If using another reference build version such as hg38, this part 1 should be rerun using the liftover VCF. ###################
+################## Alternatively, you can liftover the study data to hg19 and still use the human hg19 files. ###################
 
 #### 1. Reference data
 REFDIR=/data/Hanserv/Reference/1000Genomes
