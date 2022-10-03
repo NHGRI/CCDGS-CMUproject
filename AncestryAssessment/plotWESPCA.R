@@ -1,4 +1,4 @@
-# this is the script for plotting GWAS QC results
+# this is the script for plotting PCA results from WES data
 
 setwd("/Users/hany4/Documents/Projects/Hypertension/COEH")
 workdir = getwd()
