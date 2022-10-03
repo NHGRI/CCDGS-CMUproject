@@ -3,6 +3,8 @@
 
 # mode and modules
 sinteractive --mem=32g --cpus-per-task=8 --time=24:00:00
+module load bcftools
+module load plink
 
 ################## This part 1 files only need to be done once and they were prepared. ##################
 ################## PLEASE DO NOT run the following script again in the same folder.   ###################
@@ -29,8 +31,6 @@ suffix=".phase3_shapeit2_mvncall_integrated_v5b.20130502.genotypes.vcf.gz";
 REFG1K=/data/Hanserv/Reference/1000Genomes/human_g1k_v37.fasta
 
 # 1.4 Convert the 1000 Genomes files to BCF
-module load bcftools
-
 for chr in {1..22}; do
     bcftools norm -m-any --check-ref w -f human_g1k_v37.fasta \
       ALL.chr"${chr}".phase3_shapeit2_mvncall_integrated_v5b.20130502.genotypes.vcf.gz | \
@@ -57,7 +57,6 @@ done
 # 1.7 Prune variants from each chromosome
 # This folder /data/Hanserv/Reference/1000Genomes/Pruned_maf10/ is similar pruning process but with the "--maf 0.10 --indep 50 5 1.1"
 # mkdir Pruned ;
-
 for chr in {1..22}; do
     plink --noweb \
       --bfile ALL.chr"${chr}".phase3_shapeit2_mvncall_integrated_v5b.20130502.genotypes \
@@ -93,14 +92,11 @@ cd $WORKDIR
 REFGEN=/data/Hanserv/Reference/hs37d5.fa
 
 # 2.1 Prepare the PED data 
-
 # Original file: /Users/hany4/Documents/Projects/Hypertension/COEH/COEH_Dictionary.xlsx PED sheet
 # /data/Hanserv/yxhan/COEH/supporting_files/COEH_20220620.ped
 
 
 # 2.2 Convert the vcf files to BCF
-module load bcftools
-
 for chr in {1..22}; do
     bcftools norm -m-any --check-ref w -f $REFGEN \
       $WORKDIR/vcf/gvcf/chr"${chr}".vcf.gz | \
@@ -112,8 +108,6 @@ for chr in {1..22}; do
 done
 
 # 2.3 Convert the BCF files to PLINK format
-module load plink
-
 for chr in {1..22}; do
     plink --noweb \
       --bcf $WORKDIR/vcf/gvcf/chr"${chr}".bcf \
@@ -191,15 +185,13 @@ plink \
 --out $refname.matched
 
 # 3.2 merge the 1000 Genomes data with your own data
-
 plink \
 --bfile $name.no_ac_gt_snps \
 --bmerge $refname.matched.bed $refname.matched.bim $refname.matched.fam \
 --make-bed \
 --out $name.$refname.matched.merged
 
-# 3.3 (1.10) Perform PCA
-
+# 3.3 Perform PCA
 # Pairwise comparisons of samples, relatedness calculated / Pairwise IBD estimation
 plink \
 --bfile $name.$refname.matched.merged \
