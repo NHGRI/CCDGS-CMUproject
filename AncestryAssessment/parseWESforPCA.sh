@@ -31,48 +31,47 @@ REFG1K=/data/Hanserv/Reference/1000Genomes/human_g1k_v37.fasta
 # 1.4 Convert the 1000 Genomes files to BCF
 module load bcftools
 
-# for chr in {1..22}; do
-#     bcftools norm -m-any --check-ref w -f human_g1k_v37.fasta \
-#       ALL.chr"${chr}".phase3_shapeit2_mvncall_integrated_v5b.20130502.genotypes.vcf.gz | \
-#       bcftools annotate -x ID -I +'%CHROM:%POS:%REF:%ALT' | \
-#         bcftools norm -Ob --rm-dup both \
-#           > ALL.chr"${chr}".phase3_shapeit2_mvncall_integrated_v5b.20130502.genotypes.bcf ;
+for chr in {1..22}; do
+    bcftools norm -m-any --check-ref w -f human_g1k_v37.fasta \
+      ALL.chr"${chr}".phase3_shapeit2_mvncall_integrated_v5b.20130502.genotypes.vcf.gz | \
+      bcftools annotate -x ID -I +'%CHROM:%POS:%REF:%ALT' | \
+        bcftools norm -Ob --rm-dup both \
+          > ALL.chr"${chr}".phase3_shapeit2_mvncall_integrated_v5b.20130502.genotypes.bcf ;
 
-#     bcftools index ALL.chr"${chr}".phase3_shapeit2_mvncall_integrated_v5b.20130502.genotypes.bcf ;
-# done
+    bcftools index ALL.chr"${chr}".phase3_shapeit2_mvncall_integrated_v5b.20130502.genotypes.bcf ;
+done
 
 # 1.5 Convert the BCF files to PLINK format
-# for chr in {1..22}; do
-#     plink --noweb \
-#       --bcf ALL.chr"${chr}".phase3_shapeit2_mvncall_integrated_v5b.20130502.genotypes.bcf \
-#       --keep-allele-order \
-#       --vcf-idspace-to _ \
-#       --const-fid \
-#       --allow-extra-chr 0 \
-#       --split-x b37 no-fail \
-#       --make-bed \
-#       --out ALL.chr"${chr}".phase3_shapeit2_mvncall_integrated_v5b.20130502.genotypes ;
-# done
+for chr in {1..22}; do
+    plink --noweb \
+      --bcf ALL.chr"${chr}".phase3_shapeit2_mvncall_integrated_v5b.20130502.genotypes.bcf \
+      --keep-allele-order \
+      --vcf-idspace-to _ \
+      --const-fid \
+      --allow-extra-chr 0 \
+      --split-x b37 no-fail \
+      --make-bed \
+      --out ALL.chr"${chr}".phase3_shapeit2_mvncall_integrated_v5b.20130502.genotypes ;
+done
 
 # 1.7 Prune variants from each chromosome
 # This folder /data/Hanserv/Reference/1000Genomes/Pruned_maf10/ is similar pruning process but with the "--maf 0.10 --indep 50 5 1.1"
 # mkdir Pruned ;
 
-# for chr in {1..22}; do
-#     plink --noweb \
-#       --bfile ALL.chr"${chr}".phase3_shapeit2_mvncall_integrated_v5b.20130502.genotypes \
-#       --maf 0.20 --indep 50 5 1.1 \
-#       --out Pruned/ALL.chr"${chr}".phase3_shapeit2_mvncall_integrated_v5b.20130502.genotypes ;
+for chr in {1..22}; do
+    plink --noweb \
+      --bfile ALL.chr"${chr}".phase3_shapeit2_mvncall_integrated_v5b.20130502.genotypes \
+      --maf 0.20 --indep 50 5 1.1 \
+      --out Pruned/ALL.chr"${chr}".phase3_shapeit2_mvncall_integrated_v5b.20130502.genotypes ;
 
-#     plink --noweb \
-#       --bfile ALL.chr"${chr}".phase3_shapeit2_mvncall_integrated_v5b.20130502.genotypes \
-#       --extract Pruned/ALL.chr"${chr}".phase3_shapeit2_mvncall_integrated_v5b.20130502.genotypes.prune.in \
-#       --make-bed \
-#       --out Pruned/ALL.chr"${chr}".phase3_shapeit2_mvncall_integrated_v5b.20130502.genotypes ;
-# done
+    plink --noweb \
+      --bfile ALL.chr"${chr}".phase3_shapeit2_mvncall_integrated_v5b.20130502.genotypes \
+      --extract Pruned/ALL.chr"${chr}".phase3_shapeit2_mvncall_integrated_v5b.20130502.genotypes.prune.in \
+      --make-bed \
+      --out Pruned/ALL.chr"${chr}".phase3_shapeit2_mvncall_integrated_v5b.20130502.genotypes ;
+done
 
 # 1.8 Get a list of all PLINK files
-
 find . -name "*.bim" | grep -e "Pruned" > ForMerge_maf20.list ;
 sed -i 's/.bim//g' ForMerge_maf20.list ;
 
@@ -80,7 +79,10 @@ sed -i 's/.bim//g' ForMerge_maf20.list ;
 plink --merge-list ForMerge_maf20.list --out Merged1KG_maf20 ;
 
 ################## This part 1 files only need to be done once and they were prepared. ##################
-################## PLEASE DO NOT run the ABOVE script aganin in the same folder.   ##################
+################## PLEASE DO NOT run the ABOVE script agnin in the same folder.   ##################
+################## If using another reference build version such as hg38, this part 1 should be rerun using the liftover VCF. ###################
+################## Alternatively, you can liftover the study data to hg19 and still use the human hg19 files. ###################
+
 
 #### 2. Study data
 # Preprocessed from WES BAM to g.vcf data by weaAnalysis.sh
@@ -141,13 +143,11 @@ for chr in {1..22}; do
 done
 
 # 2.5 Get a list of all PLINK files
-
 cd PLINK_output
 find . -name "*.bim" | grep -e "Pruned" > ForMerge_COEH_maf20.list ;
 sed -i 's/.bim//g' ForMerge_COEH_maf20.list ;
 
 # 2.6 Merge all projects into a single PLINK file
-
 plink --merge-list ForMerge_COEH_maf20.list --out MergedCOEH_maf20 ;
 
 
