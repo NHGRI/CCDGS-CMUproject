@@ -21,6 +21,7 @@ NAME=$(echo $FILE1 | cut -d _ -f 1-3)
 SAMPLEID=$(echo $FILE1 | cut -d _ -f 1)
 header=$(zcat $FASTQDIR/$i/$FILE1 | head -n 1)
 id=$(echo $header | cut -f 1-4 -d":" | sed 's/@//' | sed 's/:/_/g')
+sm=$(echo $header | cut -f 1-2 -d":" | sed 's/@//' | sed 's/:/_/g')
 pu=$(echo $header | cut -f 3-4 -d":" | sed 's/@//' | sed 's/:/./g')
 idx=$(echo $header | grep -Eo "[ATGCN]+$")
 echo "bwa mem -M -O 30 -E 4 -T 20 -v 3 -t 36 -R $(echo \"@RG\\tID:$id\\tSM:$SAMPLEID\\tPU:$pu"."$idx\\tLB:$sm".lib1"\\tPL:ILLUMINA\") \
