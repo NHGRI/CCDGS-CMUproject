@@ -20,10 +20,13 @@ This vignette demonstrates how to:
 2.  [Generate indexing for efficient CMU
     computation](#step-2-generating-cmu-folder-and-indexing-for-beta-file)
 3.  [Identify CMUs](#step-3-running-cmu-detection-on-illumina-450k-data)
-4.  [Incorporate sample subsets and
-    covariates](#step-4-advanced-options-sample-subsets-and-covariates)
-5.  [Perform differential CMUs](#step-5-differential-cmus)
-6.  [How to use CMU output files](#how-to-use-cmu-output-files)
+
+Optional features
+
+- [Incorporate sample subsets and
+  covariates](#step-4-advanced-options-sample-subsets-and-covariates)
+- [Perform differential CMUs](#step-5-differential-cmus)
+- [How to use CMU output files](#how-to-use-cmu-output-files)
 
 The provided toy datasets can help illustrate the correct input format
 for the dataset to be used.
@@ -385,7 +388,7 @@ If you use our CMU software, please cite:
 
 *annotate*: Gentry J (2025). *annotate: Annotation for microarrays*.
 <doi:10.18129/B9.bioc.annotate>
-<https://doi.org/10.18129/B9.bioc.annotate>, R package version 1.86.1,
+<https://doi.org/10.18129/B9.bioc.annotate>, R package version 1.88.0,
 <https://bioconductor.org/packages/annotate>.
 
 *GenomicRanges*: Lawrence M, Huber W, Pagès H, Aboyoun P, Carlson M,
@@ -422,7 +425,7 @@ Rows and Columns of Matrices (and to Vectors)*.
 1.5.0, <https://CRAN.R-project.org/package=matrixStats>.
 
 *org.Hs.eg.db*: Carlson M (2025). *org.Hs.eg.db: Genome wide annotation
-for Human*. R package version 3.21.0.
+for Human*. R package version 3.22.0.
 
 *psych*: William Revelle (2025). *psych: Procedures for Psychological,
 Psychometric, and Personality Research*. Northwestern University,
@@ -432,11 +435,11 @@ Evanston, Illinois. R package version 2.5.6,
 *reticulate*: Ushey K, Allaire J, Tang Y (2025). *reticulate: Interface
 to ‘Python’*. <doi:10.32614/CRAN.package.reticulate>
 <https://doi.org/10.32614/CRAN.package.reticulate>, R package version
-1.44.1, <https://CRAN.R-project.org/package=reticulate>.
+1.44.0, <https://CRAN.R-project.org/package=reticulate>.
 
-*TxDb.Hsapiens.UCSC.hg19.knownGene*: Carlson M, Maintainer BP (2015).
+*TxDb.Hsapiens.UCSC.hg19.knownGene*: Team BC, Maintainer BP (2025).
 *TxDb.Hsapiens.UCSC.hg19.knownGene: Annotation package for TxDb
-object(s)*. R package version 3.2.2.
+object(s)*. R package version 3.22.1.
 
 #### pandas
 

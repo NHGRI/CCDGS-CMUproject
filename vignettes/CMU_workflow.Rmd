@@ -27,9 +27,12 @@ This vignette demonstrates how to:
 1. [Prepare Illumina 450k or EPIC DNA methylation data](#step-1-methylation-input-file-formating) 
 2. [Generate indexing for efficient CMU computation](#step-2-generating-cmu-folder-and-indexing-for-beta-file)
 3. [Identify CMUs](#step-3-running-cmu-detection-on-illumina-450k-data) 
-4. [Incorporate sample subsets and covariates](#step-4-advanced-options-sample-subsets-and-covariates)
-5. [Perform differential CMUs](#step-5-differential-cmus)
-6. [How to use CMU output files](#how-to-use-cmu-output-files)
+
+Optional features 
+
+- [Incorporate sample subsets and covariates](#step-4-advanced-options-sample-subsets-and-covariates)
+- [Perform differential CMUs](#step-5-differential-cmus)
+- [How to use CMU output files](#how-to-use-cmu-output-files)
 
 The provided toy datasets can help illustrate the correct input format for the dataset to be used. 
 
